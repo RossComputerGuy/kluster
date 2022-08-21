@@ -2,7 +2,7 @@ apiVersion: cert-manager.k8s.cloudflare.com/v1
 kind: OriginIssuer
 metadata:
   name: public-issuer
-  namespace: default
+  namespace: argo-cd
 spec:
   requestType: OriginECC
   auth:
@@ -16,7 +16,7 @@ metadata:
     cert-manager.io/issuer: public-issuer
     cert-manager.io/issuer-kind: OriginIssuer
     cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
-  name: public-ingress
+  name: argo-cd-ingress
   namespace: argo-cd
 spec:
   rules:

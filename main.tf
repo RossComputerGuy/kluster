@@ -203,7 +203,6 @@ resource "helm_release" "argo-cd" {
   }
 
   depends_on = [
-    resource.kubernetes_secret.argo-cd-tls-certificate,
     resource.kubernetes_namespace.argo-cd,
     resource.helm_release.prometheus
   ]
