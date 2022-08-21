@@ -1,0 +1,36 @@
+apiVersion: cert-manager.k8s.cloudflare.com/v1
+kind: OriginIssuer
+metadata:
+  name: public-issuer
+  namespace: default
+spec:
+  requestType: OriginECC
+  auth:
+    serviceKey:
+      key: {{ .Values.originKey }}
+---
+apiVersion: networking/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/issuer: public-issuer
+    cert-manager.io/issuer-kind: OriginIssuer
+    cert-manager.io/issuer-group: cert-manager.k8s.cloudflare.com
+  name: public-ingress
+  namespace: argo-cd
+spec:
+  rules:
+    - host: argo-cd.cluster.tristanxr.com
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: argo-cd-argocd-service
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - argo-cd.cluster.tristanxr.com
+      secretName: public-tls
