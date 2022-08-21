@@ -209,13 +209,13 @@ resource "helm_release" "argo-cd-internal" {
   }
 
   set {
-    name  = "apps.traefikCloudflared.cloudflared.existingSecret"
+    name  = "networking.traefikCloudflared.cloudflared.existingSecret"
     value = base64encode(resource.lastpass_secret.argo-tunnel-secret.password)
     type  = "string"
   }
 
   set {
-    name  = "apps.traefikCloudflared.cloudflared.tunnelID"
+    name  = "networking.traefikCloudflared.cloudflared.tunnelID"
     value = resource.cloudflare_argo_tunnel.argo-tunnel.id
     type  = "string"
   }
