@@ -1,4 +1,6 @@
 cloudflared:
+  image:
+    tag: 2022.8.2
   ingress:
     - service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
       originRequest:
