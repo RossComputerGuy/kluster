@@ -1,0 +1,3 @@
+traefik-cloudflared-source-ip:
+  global:
+    cloudflaredEnabled: false

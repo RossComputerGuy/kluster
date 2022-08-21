@@ -7,7 +7,3 @@ traefik:
       allowCrossNamespace: true
     kubernetesIngress:
       allowCrossNamespace: true
-
-traefik-cloudflared-source-ip:
-  global:
-    cloudflaredEnabled: false
