@@ -4,7 +4,7 @@ metadata:
   name: traefik
   namespace: argo-cd
 spec:
-  project: kubernetes-apps
+  project: networking
   syncPolicy:
     automated: {}
     syncOptions:
