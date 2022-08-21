@@ -18,13 +18,12 @@ spec:
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |-
-        traefik-cloudflared-source-ip:
-          {{- if .Values.traefik }}
-          traefik:
-          {{- toYaml .Values.traefik | nindent 12 }}
-          {{- end -}}
+        {{- if .Values.traefik }}
+        traefik:
+        {{- toYaml .Values.traefik | nindent 12 }}
+        {{- end -}}
 
-          {{- if .Values.cloudflared }}
-          cloudflared:
-          {{- toYaml .Values.cloudflared | nindent 12 }}
-          {{- end -}}
+        {{- if .Values.cloudflared }}
+        cloudflared:
+        {{- toYaml .Values.cloudflared | nindent 12 }}
+        {{- end -}}

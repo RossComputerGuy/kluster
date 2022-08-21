@@ -106,7 +106,7 @@ resource "cloudflare_origin_ca_certificate" "tristanxr" {
   csr                = resource.tls_cert_request.tristanxr.cert_request_pem
   request_type       = "origin-rsa"
   requested_validity = 365
-  hostnames          = ["*.cluster.tristanxr.com"]
+  hostnames          = ["*.cluster.tristanxr.com", "cluster.tristanxr.com"]
 }
 
 ##
@@ -276,13 +276,13 @@ resource "helm_release" "argo-cd-internal" {
   }
 
   set {
-    name  = "networking.traefik.cloudflareTls.crt"
+    name  = "networking.cloudflared.tls.crt"
     value = resource.cloudflare_origin_ca_certificate.tristanxr.certificate
     type  = "string"
   }
 
   set {
-    name  = "networking.traefik.cloudflareTls.key"
+    name  = "networking.cloudflared.tls.key"
     value = resource.tls_private_key.tristanxr.private_key_pem
     type  = "string"
   }

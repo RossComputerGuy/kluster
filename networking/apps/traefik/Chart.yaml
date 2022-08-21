@@ -2,9 +2,12 @@ apiVersion: v2
 name: traefik-cloudflared
 description: Traefik + Cloudflare Tunnel
 type: application
-version: 1.0.4
+version: 10.24.0
 appVersion: "1.0"
 dependencies:
-  - name: traefik-cloudflared-source-ip
-    version: 1.0.4
+  - name: traefik
+    version: 10.24.0
+    repository: https://helm.traefik.io/traefik
+  - name: cloudflared
+    version: 1.0.1
     repository: https://charts.kubito.dev
