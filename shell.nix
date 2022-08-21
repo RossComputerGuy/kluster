@@ -8,4 +8,8 @@ pkgs.mkShell {
     lastpass-cli
     minikube
   ];
+  shellHooks = ''
+    export KUBE_CONFIG_PATH=$HOME/.kube/config
+    [[ -f .env ]] && source .env
+  '';
 }

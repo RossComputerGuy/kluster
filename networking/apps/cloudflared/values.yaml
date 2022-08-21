@@ -5,7 +5,7 @@ cloudflared:
   replicaCount: 1
   ingress:
     - hostname: cluster.tristanxr.com
-      service: https://argo-cd-argocd-server.argo-cd.svc.cluster.local:443
-      originRequest:
-        noTLSVerify: true
+      service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
+    - hostname: "*.cluster.tristanxr.com"
+      service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
     - service: http_status:404
