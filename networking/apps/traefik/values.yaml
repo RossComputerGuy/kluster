@@ -1,9 +1,6 @@
-traefik:
-  ingressClass:
-    enabled: true
-    isDefaultClass: true
-  providers:
-    kubernetesCRD:
-      allowCrossNamespace: true
-    kubernetesIngress:
-      allowCrossNamespace: true
+traefik-cloudflared-source-ip:
+  cloudflared:
+    ingress:
+      - service: https://traefik.traefik.svc.cluster.local:443
+        originRequest:
+          originServerName: cluster.tristanxr.com

@@ -276,13 +276,13 @@ resource "helm_release" "argo-cd-internal" {
   }
 
   set {
-    name  = "networking.traefikCloudflared.traefik.cloudflareTls.crt"
+    name  = "networking.traefik.cloudflareTls.crt"
     value = resource.cloudflare_origin_ca_certificate.tristanxr.certificate
     type  = "string"
   }
 
   set {
-    name  = "networking.traefikCloudflared.traefik.cloudflareTls.key"
+    name  = "networking.traefik.cloudflareTls.key"
     value = resource.tls_private_key.tristanxr.private_key_pem
     type  = "string"
   }
