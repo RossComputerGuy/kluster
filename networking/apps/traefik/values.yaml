@@ -7,6 +7,9 @@ traefik:
   ingressClass:
     enabled: true
     isDefaultClass: true
+  experimental:
+    plugins:
+      enabled: true
   providers:
     kubernetesCRD:
       allowCrossNamespace: true
