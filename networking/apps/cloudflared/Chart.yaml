@@ -2,9 +2,9 @@ apiVersion: v2
 name: cloudflared
 description: Cloudflare Argo Tunnel
 type: application
-version: 1.0.8
+version: 1.0.1
 appVersion: "1.0"
 dependencies:
   - name: cloudflared
-    version: 1.0.8
-    repository: https://charts.truecharts.org/
+    version: 1.0.1
+    repository: https://charts.kubito.dev

@@ -277,9 +277,26 @@ resource "helm_release" "argo-cd-internal" {
   }
 
   set {
-    name  = "networking.cloudflared.env.token"
-    value = resource.cloudflare_argo_tunnel.argo-tunnel.tunnel_token
+    name  = "networking.cloudflared.tunnelID"
+    value = resource.cloudflare_argo_tunnel.argo-tunnel.id
     type  = "string"
+  }
+
+  set {
+    name  = "networking.cloudflared.existingSecret"
+    value = base64encode(resource.lastpass_secret.argo-tunnel-secret.password)
+    type  = "string"
+  }
+
+  set {
+    name = "networking.cloudflared.auth.accountTag"
+    value = var.cloudflare_token
+    type = "string"
+  }
+
+  set {
+    name = "networking.cloudflared.auth.tunnelName"
+    value = "cluster.tristanxr.com"
   }
 
   depends_on = [resource.helm_release.argo-cd, resource.cloudflare_argo_tunnel.argo-tunnel]
