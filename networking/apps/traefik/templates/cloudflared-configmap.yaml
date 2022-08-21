@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared
+  namespace: traefik
+data:
+  config.yaml: |-
+    logDirectory: /var/log/cloudflared
+    tunnel: {{ required "The Argo Tunnel ID is missing." .Values.cloudflared.tunnelID }}
+    credentials-file: /etc/cloudflared/tunnel-config.json
+    warp-routing:
+      enabled: {{ .Values.cloudflared.warpRouting }}
+    ingress: {{ toYaml .Values.cloudflared.ingress | nindent 6 }}
