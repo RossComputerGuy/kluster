@@ -8,5 +8,4 @@ cloudflared:
       service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
       originRequest:
         noTLSVerify: true
-        originHost: cluster.tristanxr.com
     - service: http_status:404
