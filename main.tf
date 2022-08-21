@@ -214,5 +214,17 @@ resource "helm_release" "argo-cd-internal" {
     type  = "string"
   }
 
+  set {
+    name  = "apps.traefik-cloudflared.cloudflared.existingSecret"
+    value = base64encode(resource.lastpass_secret.argo-tunnel-secret.password)
+    type  = "string"
+  }
+
+  set {
+    name  = "apps.traefik-cloudflared.cloudflared.tunnelID"
+    value = resource.cloudflare_argo_tunnel.argo-tunnel.id
+    type  = "string"
+  }
+
   depends_on = [resource.helm_release.argo-cd, resource.cloudflare_argo_tunnel.argo-tunnel]
 }

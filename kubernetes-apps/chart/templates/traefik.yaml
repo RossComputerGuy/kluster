@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik
+  namespace: argo-cd
+spec:
+  project: kubernetes-apps
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: traefik
+  source:
+    repoURL: {{ .Values.repoURL }}
+    path: kubernetes-apps/apps/traefik
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values: |-
+        {{- if .Values.traefik }}
+        traefik:
+        {{- toYaml .Values.traefik | nindent 10 }}
+        {{- end -}}
+
+        {{- if .Values.traefik-cloudflared }}
+        traefik-cloudflared-source-ip:
+        {{- toYaml .Values.traefik-cloudflared | nindent 10 }}
+        {{- end -}}
