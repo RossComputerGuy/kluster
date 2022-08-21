@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik
+  name: cloudflared
   namespace: argo-cd
 spec:
   project: networking
@@ -14,16 +14,11 @@ spec:
     namespace: traefik
   source:
     repoURL: {{ .Values.repoURL }}
-    path: networking/apps/traefik
+    path: networking/apps/cloudflared
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |-
-        {{- if .Values.traefik }}
-        traefik:
-        {{- toYaml .Values.traefik | nindent 10 }}
-        {{- end -}}
-
-        {{- if .Values.traefikCloudflared }}
-        traefik-cloudflared-source-ip:
-        {{- toYaml .Values.traefikCloudflared | nindent 10 }}
+        {{- if .Values.cloudflared }}
+        cloudflared:
+        {{- toYaml .Values.cloudflared | nindent 10 }}
         {{- end -}}

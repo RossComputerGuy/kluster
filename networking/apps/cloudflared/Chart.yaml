@@ -1,0 +1,10 @@
+apiVersion: v2
+name: cloudflared
+description: Argo tunnel
+type: application
+version: 1.0.1
+appVersion: "1.0"
+dependencies:
+  - name: cloudflared
+    version: 1.0.1
+    repository: https://charts.kubito.dev
