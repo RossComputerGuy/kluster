@@ -1,3 +1,6 @@
 traefik-cloudflared-source-ip:
-  global:
-    cloudflaredEnabled: false
+  cloudflared:
+    ingress:
+      - service: https://traefik.traefik.svc.cluster.local:443
+        originRequest:
+          originServerName: cluster.tristanxr.com
