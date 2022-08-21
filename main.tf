@@ -40,6 +40,7 @@ resource "random_password" "argo-cd-admin-password" {
 
 resource "lastpass_secret" "argo-cd-admin-password" {
   name     = "Kubernetes Cluster: ArgoCD Admin Password"
+  url      = "http://argo-cd.cluster.tristanxr.com"
   username = "admin"
   password = resource.random_password.argo-cd-admin-password.result
 }
@@ -103,7 +104,7 @@ resource "helm_release" "argo-cd" {
   }
 
   set {
-    name  = "dex.metrics.serviceMonitor"
+    name  = "dex.metrics.serviceMonitor.enabled"
     value = "true"
   }
 
@@ -159,7 +160,7 @@ resource "helm_release" "argo-cd" {
 }
 
 resource "helm_release" "argo-cd-internal" {
-  name = "argo-cd"
+  name = "argo-cd-internal"
 
   repository = path.module
   chart      = "argo-cd-internal/chart"
