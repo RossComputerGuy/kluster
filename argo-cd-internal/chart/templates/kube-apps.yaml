@@ -20,3 +20,7 @@ spec:
       values: |
         repoURL: {{ .Values.repoURL }}
         targetRevision: {{ .Values.targetRevision }}
+
+        {{- if (.Values.apps) -}}
+        {{- toYaml .Values.apps }}
+        {{- end -}}
