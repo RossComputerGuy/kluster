@@ -1,0 +1,6 @@
+apiVersion: v2
+name: argo-cd-internal
+description: Various things to deploy for ArgoCD
+type: applications
+version: 0.1.0
+appVersion: 0.1.0

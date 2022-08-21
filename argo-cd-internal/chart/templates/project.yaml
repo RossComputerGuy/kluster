@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: argo-cd-internal
+  namespace: argo-cd
+spec:
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+  destination:
+    - namespace: 'argo-cd'
+      server: '*'
+  sourceRepos:
+    - '*'
