@@ -11,3 +11,6 @@ dependencies:
   - name: traefik-cloudflared-source-ip
     version: 1.0.4
     repository: https://charts.kubito.dev
+  - name: cloudflared
+    version: 1.0.1
+    repository: https://charts.kubito.dev

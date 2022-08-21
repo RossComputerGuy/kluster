@@ -1,4 +1,6 @@
 traefik-cloudflared-source-ip:
+  global:
+    cloudflaredEnabled: false
   cloudflared:
     ingress:
       - service: https://traefik.traefik.svc.cluster.local:443
