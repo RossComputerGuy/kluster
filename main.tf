@@ -164,7 +164,27 @@ resource "helm_release" "argo-cd" {
 
   set {
     name  = "server.ingress.enabled"
-    value = "false"
+    value = "true"
+  }
+
+  set {
+    name  = "server.ingress.annotations.cert-manager.io/issuer"
+    value = "public-issuer"
+  }
+
+  set {
+    name  = "server.ingress.annotations.cert-manager.io/issuer-kind"
+    value = "OriginIssuer"
+  }
+
+  set {
+    name  = "server.ingress.annotations.cert-manager.io/issuer-group"
+    value = "cert-manager.k8s.cloudflare.com"
+  }
+
+  set {
+    name = "server.ingress.paths"
+    value = "{/argo-cd}"
   }
 
   set {
