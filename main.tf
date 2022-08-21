@@ -253,9 +253,20 @@ resource "helm_release" "argo-cd-internal" {
   }
 
   set {
-    name  = "networking.traefikCloudflared.cloudflared.existingSecret"
+    name  = "networking.traefikCloudflared.cloudflared.auth.tunnelSecret"
     value = base64encode(resource.lastpass_secret.argo-tunnel-secret.password)
     type  = "string"
+  }
+
+  set {
+    name = "networking.traefikCloudflared.auth.accountTag"
+    value = var.cloudflare_token
+    type = "string"
+  }
+
+  set {
+    name = "networking.traefikCloudflared.auth.tunnelName"
+    value = "cluster.tristanxr.com"
   }
 
   set {
@@ -283,7 +294,7 @@ resource "helm_release" "argo-cd-internal" {
   }
 
   set {
-    name  = "networking.cloudflared.existingSecret"
+    name  = "networking.cloudflared.auth.tunnelSecret"
     value = base64encode(resource.lastpass_secret.argo-tunnel-secret.password)
     type  = "string"
   }
