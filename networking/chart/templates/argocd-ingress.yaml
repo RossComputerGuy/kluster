@@ -1,3 +1,12 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: origin-ca-key
+  namespace: argo-cd
+type: Opaque
+stringData:
+  key: {{ .Values.originKey }}
+---
 apiVersion: cert-manager.k8s.cloudflare.com/v1
 kind: OriginIssuer
 metadata:
@@ -6,8 +15,9 @@ metadata:
 spec:
   requestType: OriginECC
   auth:
-    serviceKey:
-      key: {{ .Values.originKey }}
+    serviceKeyRef:
+      name: origin-ca-key
+      key: key
 ---
 apiVersion: networking/v1
 kind: Ingress

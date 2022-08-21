@@ -228,7 +228,7 @@ resource "helm_release" "argo-cd-internal" {
   }
 
   set {
-    name = "originKey"
+    name = "networking.originKey"
     value = var.cloudflare_origin_ca_key 
   }
 
