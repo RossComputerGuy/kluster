@@ -1,6 +1,8 @@
 cloudflared:
   image:
     tag: latest
+  warpRouting: true
+  replicaCount: 1
   ingress:
     - hostname: cluster.tristanxr.com
       service: http://argo-cd-argocd-server.argo-cd.svc.cluster.local:80

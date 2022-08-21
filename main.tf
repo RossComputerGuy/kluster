@@ -89,26 +89,6 @@ resource "cloudflare_record" "cluster" {
   value   = "${resource.cloudflare_argo_tunnel.argo-tunnel.id}.cfargotunnel.com"
 }
 
-resource "tls_private_key" "tristanxr" {
-  algorithm = "RSA"
-}
-
-resource "tls_cert_request" "tristanxr" {
-  private_key_pem = resource.tls_private_key.tristanxr.private_key_pem
-
-  subject {
-    common_name  = ""
-    organization = "Tristan Ross"
-  }
-}
-
-resource "cloudflare_origin_ca_certificate" "tristanxr" {
-  csr                = resource.tls_cert_request.tristanxr.cert_request_pem
-  request_type       = "origin-rsa"
-  requested_validity = 365
-  hostnames          = ["*.cluster.tristanxr.com", "cluster.tristanxr.com"]
-}
-
 ##
 ## Namespaces
 ##
@@ -272,18 +252,6 @@ resource "helm_release" "argo-cd-internal" {
   set {
     name  = "networking.cloudflared.tunnelID"
     value = resource.cloudflare_argo_tunnel.argo-tunnel.id
-    type  = "string"
-  }
-
-  set {
-    name  = "networking.cloudflared.tls.crt"
-    value = resource.cloudflare_origin_ca_certificate.tristanxr.certificate
-    type  = "string"
-  }
-
-  set {
-    name  = "networking.cloudflared.tls.key"
-    value = resource.tls_private_key.tristanxr.private_key_pem
     type  = "string"
   }
 
