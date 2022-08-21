@@ -34,7 +34,7 @@ provider "kubernetes" {
 }
 
 provider "cloudflare" {
-  api_token = var.cloudflare_token
+  api_token            = var.cloudflare_token
   api_user_service_key = var.cloudflare_origin_ca_key
 }
 
@@ -62,7 +62,7 @@ resource "random_password" "argo-tunnel-secret" {
 
 resource "lastpass_secret" "argo-tunnel-secret" {
   name     = "Kubernetes Cluster: Argo Tunnel Secret"
-  url      = "http://cluster.tristanxr.com"
+  url      = "http://cluster.tristanxr.com/argo-cd"
   username = "admin"
   password = resource.random_password.argo-tunnel-secret.result
 }
@@ -126,7 +126,7 @@ resource "helm_release" "argo-cd" {
   version    = "4.10.7"
   namespace  = "argo-cd"
 
-  set {
+  set_sensitive {
     name  = "configs.secret.argocdServerAdminPassword"
     value = bcrypt(resource.lastpass_secret.argo-cd-admin-password.password)
     type  = "string"
@@ -163,28 +163,59 @@ resource "helm_release" "argo-cd" {
   }
 
   set {
+    name  = "server.extraArgs"
+    value = "{--basehref,/argo-cd,--rootpath,/argo-cd}"
+  }
+
+  set {
     name  = "server.ingress.enabled"
     value = "true"
   }
 
   set {
-    name  = "server.ingress.annotations.cert-manager.io/issuer"
+    name  = "server.ingress.annotations.cert-manager\\.io/issuer"
     value = "public-issuer"
+    type  = "string"
   }
 
   set {
-    name  = "server.ingress.annotations.cert-manager.io/issuer-kind"
+    name  = "server.ingress.annotations.cert-manager\\.io/issuer-kind"
     value = "OriginIssuer"
+    type  = "string"
   }
 
   set {
-    name  = "server.ingress.annotations.cert-manager.io/issuer-group"
+    name  = "server.ingress.annotations.cert-manager\\.io/issuer-group"
     value = "cert-manager.k8s.cloudflare.com"
+    type  = "string"
   }
 
   set {
-    name = "server.ingress.paths"
-    value = "{/argo-cd}"
+    name  = "server.ingress.annotations.nginx\\.ingress\\.kubernetes\\.io/force-ssl-redirect"
+    value = "true"
+    type  = "string"
+  }
+
+  set {
+    name  = "server.ingress.annotations.nginx\\.ingress\\.kubernetes\\.io/backend-protocol"
+    value = "HTTPS"
+    type  = "string"
+  }
+
+  set {
+    name  = "server.ingress.annotations.nginx\\.ingress\\.kubernetes\\.io/rewrite-target"
+    value = "/argo-cd/$2"
+    type  = "string"
+  }
+
+  set {
+    name  = "server.ingress.hosts"
+    value = "{cluster.tristanxr.com}"
+  }
+
+  set {
+    name  = "server.ingress.paths"
+    value = "{/argo-cd(/|$)(.*)}"
   }
 
   set {
@@ -247,29 +278,29 @@ resource "helm_release" "argo-cd-internal" {
     type  = "string"
   }
 
-  set {
-    name = "networking.originKey"
-    value = var.cloudflare_origin_ca_key 
+  set_sensitive {
+    name  = "networking.originKey"
+    value = var.cloudflare_origin_ca_key
   }
 
-  set {
+  set_sensitive {
     name  = "networking.cloudflared.auth.tunnelSecret"
     value = base64encode(resource.lastpass_secret.argo-tunnel-secret.password)
     type  = "string"
   }
 
-  set {
-    name = "networking.cloudflared.auth.accountTag"
+  set_sensitive {
+    name  = "networking.cloudflared.auth.accountTag"
     value = var.cloudflare_account_id
-    type = "string"
+    type  = "string"
   }
 
   set {
-    name = "networking.cloudflared.auth.tunnelName"
+    name  = "networking.cloudflared.auth.tunnelName"
     value = "cluster.tristanxr.com"
   }
 
-  set {
+  set_sensitive {
     name  = "networking.cloudflared.tunnelID"
     value = resource.cloudflare_argo_tunnel.argo-tunnel.id
     type  = "string"
