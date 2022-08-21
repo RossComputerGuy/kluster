@@ -3,6 +3,3 @@ cloudflared:
     - service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
       originRequest:
         originServerName: cluster.tristanxr.com
-    - service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:80
-      originRequest:
-        originServerName: cluster.tristanxr.com
