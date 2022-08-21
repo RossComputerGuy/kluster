@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik
+  name: cloudflared
   namespace: argo-cd
 spec:
   project: networking
@@ -11,18 +11,13 @@ spec:
       - CreateNamespace=true
   destination:
     server: https://kubernetes.default.svc
-    namespace: traefik
+    namespace: cloudflared
   source:
     repoURL: {{ .Values.repoURL }}
-    path: networking/apps/traefik
+    path: networking/apps/cloudflared
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |-
-        {{- if .Values.traefik }}
-        traefik:
-        {{- toYaml .Values.traefik | nindent 12 }}
-        {{- end -}}
-
         {{- if .Values.cloudflared }}
         cloudflared:
         {{- toYaml .Values.cloudflared | nindent 12 }}
