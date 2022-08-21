@@ -105,6 +105,48 @@ resource "kubernetes_namespace" "prometheus" {
 }
 
 ##
+## SSL Certificate
+##
+
+resource "tls_private_key" "tristanxr" {
+  algorithm = "RSA"
+}
+
+resource "tls_cert_request" "tristanxr" {
+  private_key_pem = resource.tls_private_key.tristanxr.private_key_pem
+
+  subject {
+    common_name  = ""
+    organization = "Tristan Ross"
+  }
+}
+
+resource "cloudflare_origin_ca_certificate" "tristanxr" {
+  csr                = resource.tls_cert_request.tristanxr.cert_request_pem
+  request_type       = "origin-rsa"
+  requested_validity = 365
+  hostnames          = ["*.cluster.tristanxr.com", "cluster.tristanxr.com"]
+}
+
+resource "kubernetes_secret" "argo-cd-tls-certificate" {
+  metadata {
+    name = "argo-cd-tls-certificate"
+    namespace = "argo-cd"
+  }
+
+  data = {
+    "tls.crt" = resource.cloudflare_origin_ca_certificate.tristanxr.certificate
+    "tls.key" = resource.tls_private_key.tristanxr.private_key_pem
+  }
+
+  depends_on = [
+    resource.kubernetes_namespace.argo-cd,
+    resource.cloudflare_origin_ca_certificate.tristanxr,
+    resource.tls_private_key.tristanxr
+  ]
+}
+
+##
 ## Helm Releases
 ##
 resource "helm_release" "prometheus" {
@@ -173,6 +215,16 @@ resource "helm_release" "argo-cd" {
   }
 
   set {
+    name  = "server.ingress.tls[0].secretName"
+    value = "argo-cd-tls-certificate"
+  }
+
+  set {
+    name  = "server.ingress.tls[0].hosts"
+    value = "{argo-cd.cluster.tristanxr.com}"
+  }
+
+  set {
     name  = "server.ingress.hosts"
     value = "{\"argo-cd.cluster.tristanxr.com\"}"
   }
@@ -213,6 +265,7 @@ resource "helm_release" "argo-cd" {
   }
 
   depends_on = [
+    resource.kubernetes_secret.argo-cd-tls-certificate,
     resource.kubernetes_namespace.argo-cd,
     resource.helm_release.prometheus
   ]
