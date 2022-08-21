@@ -23,6 +23,11 @@ spec:
         {{- toYaml .Values.traefik | nindent 10 }}
         {{- end -}}
 
+        {{- if .Values.cloudflared }}
+        cloudflared:
+        {{- toYaml .Values.cloudflared | nindent 10 }}
+        {{- end -}}
+
         {{- if .Values.traefikCloudflared }}
         traefik-cloudflared-source-ip:
         {{- toYaml .Values.traefikCloudflared | nindent 10 }}
