@@ -1,7 +1,7 @@
 cloudflared:
   image:
-    tag: 2022.8.2
+    tag: latest
   ingress:
-    - service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
-      originRequest:
-        originServerName: cluster.tristanxr.com
+    - hostname: cluster.tristanxr.com
+      service: http://argo-cd-argocd-server.argo-cd.svc.cluster.local:80
+    - service: http_status:404
