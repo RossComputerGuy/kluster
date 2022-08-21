@@ -129,7 +129,7 @@ resource "cloudflare_origin_ca_certificate" "tristanxr" {
 }
 
 resource "kubernetes_secret" "argo-cd-tls-certificate" {
-  metadata = {
+  metadata {
     name = "argo-cd-tls-certificate"
     namespace = "argo-cd"
   }
@@ -139,7 +139,11 @@ resource "kubernetes_secret" "argo-cd-tls-certificate" {
     "tls.key" = resource.tls_private_key.tristanxr.private_key_pem
   }
 
-  depends_on = [resource.kubernetes_namespace.argo-cd]
+  depends_on = [
+    resource.kubernetes_namespace.argo-cd,
+    resource.cloudflare_origin_ca_certificate.tristanxr,
+    resource.tls_private_key.tristanxr
+  ]
 }
 
 ##
@@ -212,7 +216,7 @@ resource "helm_release" "argo-cd" {
 
   set {
     name  = "server.ingress.tls[0].hosts"
-    value = "{\"argo-cd.cluster.tristanxr.com\"}"
+    value = "{argo-cd.cluster.tristanxr.com}"
   }
 
   set {
@@ -261,6 +265,7 @@ resource "helm_release" "argo-cd" {
   }
 
   depends_on = [
+    resource.kubernetes_secret.argo-cd-tls-certificate,
     resource.kubernetes_namespace.argo-cd,
     resource.helm_release.prometheus
   ]

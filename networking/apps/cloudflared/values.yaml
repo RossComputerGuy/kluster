@@ -6,6 +6,10 @@ cloudflared:
   ingress:
     - hostname: cluster.tristanxr.com
       service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
+      originRequest:
+        noTLSVerify: true
     - hostname: "*.cluster.tristanxr.com"
       service: https://ingress-nginx-controller.ingress-nginx.svc.cluster.local:443
+      originRequest:
+        noTLSVerify: true
     - service: http_status:404
