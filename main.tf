@@ -211,6 +211,7 @@ resource "helm_release" "argo-cd-internal" {
   set {
     name  = "apps.cloudflared.env.token"
     value = resource.cloudflare_argo_tunnel.argo-tunnel.tunnel_token
+    type  = "string"
   }
 
   depends_on = [resource.helm_release.argo-cd, resource.cloudflare_argo_tunnel.argo-tunnel]

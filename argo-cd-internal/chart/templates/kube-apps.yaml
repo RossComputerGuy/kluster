@@ -22,5 +22,5 @@ spec:
         targetRevision: {{ .Values.targetRevision }}
 
         {{- if (.Values.apps) -}}
-        {{- toYaml .Values.apps }}
+        {{- toYaml .Values.apps | nindent 8 }}
         {{- end -}}
