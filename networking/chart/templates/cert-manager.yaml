@@ -14,7 +14,7 @@ spec:
     namespace: cert-manager
   source:
     repoURL: {{ .Values.repoURL }}
-    path: kubernetes-apps/apps/cert-manager
+    path: networking/apps/cert-manager
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |-

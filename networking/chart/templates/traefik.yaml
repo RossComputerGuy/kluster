@@ -14,7 +14,7 @@ spec:
     namespace: traefik
   source:
     repoURL: {{ .Values.repoURL }}
-    path: kubernetes-apps/apps/traefik
+    path: networking/apps/traefik
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |-

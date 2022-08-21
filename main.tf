@@ -35,6 +35,7 @@ provider "kubernetes" {
 
 provider "cloudflare" {
   api_token = var.cloudflare_token
+  api_user_service_key = var.cloudflare_origin_ca_key
 }
 
 ##
@@ -73,6 +74,39 @@ resource "cloudflare_argo_tunnel" "argo-tunnel" {
   account_id = var.cloudflare_account_id
   name       = "cluster.tristanxr.com"
   secret     = base64encode(resource.lastpass_secret.argo-tunnel-secret.password)
+}
+
+resource "cloudflare_zone" "tristanxr" {
+  account_id = var.cloudflare_account_id
+  zone       = "tristanxr.com"
+}
+
+resource "cloudflare_record" "cluster" {
+  zone_id = resource.cloudflare_zone.tristanxr.id
+  name    = "cluster"
+  type    = "CNAME"
+  proxied = true
+  value   = "${resource.cloudflare_argo_tunnel.argo-tunnel.id}.cfargotunnel.com"
+}
+
+resource "tls_private_key" "tristanxr" {
+  algorithm = "RSA"
+}
+
+resource "tls_cert_request" "tristanxr" {
+  private_key_pem = resource.tls_private_key.tristanxr.private_key_pem
+
+  subject {
+    common_name  = ""
+    organization = "Tristan Ross"
+  }
+}
+
+resource "cloudflare_origin_ca_certificate" "tristanxr" {
+  csr                = resource.tls_cert_request.tristanxr.cert_request_pem
+  request_type       = "origin-rsa"
+  requested_validity = 365
+  hostnames          = ["*.cluster.tristanxr.com"]
 }
 
 ##
@@ -149,6 +183,16 @@ resource "helm_release" "argo-cd" {
   }
 
   set {
+    name  = "server.ingress.enabled"
+    value = true
+  }
+
+  set {
+    name  = "server.ingress.hosts"
+    value = "{\"cluster.tristanxr.com\"}"
+  }
+
+  set {
     name  = "server.metrics.enabled"
     value = "true"
   }
@@ -217,6 +261,18 @@ resource "helm_release" "argo-cd-internal" {
   set {
     name  = "networking.traefikCloudflared.cloudflared.tunnelID"
     value = resource.cloudflare_argo_tunnel.argo-tunnel.id
+    type  = "string"
+  }
+
+  set {
+    name  = "networking.traefikCloudflared.traefik.cloudflareTls.crt"
+    value = resource.cloudflare_origin_ca_certificate.tristanxr.certificate
+    type  = "string"
+  }
+
+  set {
+    name  = "networking.traefikCloudflared.traefik.cloudflareTls.key"
+    value = resource.tls_private_key.tristanxr.private_key_pem
     type  = "string"
   }
 

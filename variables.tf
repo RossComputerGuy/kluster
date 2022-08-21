@@ -11,3 +11,10 @@ variable "cloudflare_token" {
   sensitive   = true
   nullable    = false
 }
+
+variable "cloudflare_origin_ca_key" {
+  type = string
+  description = "The Cloudflare Origin CA key to use"
+  sensitive = true
+  nullable = false
+}
