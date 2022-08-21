@@ -16,9 +16,9 @@ spec:
     repoURL: {{ .Values.repoURL }}
     path: kubernetes-apps/apps/cloudflared
     targetRevision: {{ .Values.targetRevision }}
-    {{- if .Values.cloudflared -}}
-      helm:
-        values: |-
-          cloudflared:
-          {{- toYaml .Values.cloudflared | nindent 10 }}
+    {{- if .Values.cloudflared }}
+    helm:
+      values: |-
+        cloudflared:
+        {{- toYaml .Values.cloudflared | nindent 10 }}
     {{- end -}}
