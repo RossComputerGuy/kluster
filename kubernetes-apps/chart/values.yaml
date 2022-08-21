@@ -1,2 +1,6 @@
 repoURL: ""
 targetRevision: ""
+
+cloudflared:
+  env:
+    token: ""

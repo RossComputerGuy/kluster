@@ -14,6 +14,10 @@ terraform {
       source  = "nrkno/lastpass"
       version = "0.5.3"
     }
+    cloudflare = {
+      source = "cloudflare/cloudflare"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -43,6 +47,28 @@ resource "lastpass_secret" "argo-cd-admin-password" {
   url      = "http://argo-cd.cluster.tristanxr.com"
   username = "admin"
   password = resource.random_password.argo-cd-admin-password.result
+}
+
+resource "random_password" "argo-tunnel-secret" {
+  length           = 32
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
+resource "lastpass_secret" "argo-tunnel-secret" {
+  name = "Kubernetes Cluster: Argo Tunnel Secret"
+  url = "http://cluster.tristanxr.com"
+  username = "admin"
+  password = resource.random_password.argo-tunnel-secret.result
+}
+
+##
+## Cloudflare Argo Tunnel
+##
+resource "cloudflare_argo_tunnel" "argo-tunnel" {
+  account_id = var.cloudflare_account_id
+  name = "cluster.tristanxr.com"
+  secret = base64(resource.lastpass_secret.argo-tunnel-secret.password)
 }
 
 ##
@@ -176,6 +202,11 @@ resource "helm_release" "argo-cd-internal" {
     name  = "targetRevision"
     value = local.targetRevision
     type  = "string"
+  }
+
+  set {
+    name = "cloudflared.env.token"
+    value = resource.cloudflare_argo_tunnel.argo-tunnel.tunnel_token
   }
 
   depends_on = [resource.helm_release.argo-cd]
