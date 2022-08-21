@@ -276,5 +276,11 @@ resource "helm_release" "argo-cd-internal" {
     type  = "string"
   }
 
+  set {
+    name  = "networking.cloudflared.env.token"
+    value = resource.cloudflare_argo_tunnel.argo-tunnel.tunnel_token
+    type  = "string"
+  }
+
   depends_on = [resource.helm_release.argo-cd, resource.cloudflare_argo_tunnel.argo-tunnel]
 }

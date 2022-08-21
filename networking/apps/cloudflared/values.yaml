@@ -1,0 +1,6 @@
+cloudflared:
+  ingress:
+    - service: https://traefik.traefik.svc.cluster.local:443
+      hostname: "*.cluster.tristanxr.com"
+      originRequest:
+        originServerName: cluster.tristanxr.com
