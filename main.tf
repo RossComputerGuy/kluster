@@ -112,38 +112,71 @@ resource "cloudflare_record" "cluster" {
 }
 
 ##
-## Namespaces
-##
-resource "kubernetes_namespace" "argo-cd" {
-  metadata {
-    name = "argo-cd"
-  }
-}
-
-resource "kubernetes_namespace" "keycloak" {
-  metadata {
-    name = "keycloak"
-  }
-}
-
-resource "kubernetes_namespace" "prometheus" {
-  metadata {
-    name = "prometheus"
-  }
-}
-
-##
 ## Helm Releases
 ##
 resource "helm_release" "prometheus" {
   name = "prometheus"
 
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "kube-prometheus"
-  version    = "8.0.16"
-  namespace  = "prometheus"
+  repository       = "https://charts.bitnami.com/bitnami"
+  chart            = "kube-prometheus"
+  version          = "8.0.16"
+  namespace        = "prometheus"
+  create_namespace = true
+}
 
-  depends_on = [resource.kubernetes_namespace.prometheus]
+##
+## Bootstrap
+##
+resource "helm_release" "bootstrap-networking-cert-manager" {
+  name = "cert-manager"
+
+  repository       = path.module
+  chart            = "bootstrap/networking/cert-manager"
+  namespace        = "cert-manager"
+  create_namespace = true
+}
+
+resource "helm_release" "bootstrap-networking-cloudflared" {
+  name = "cloudflared"
+
+  repository       = path.module
+  chart            = "bootstrap/networking/cloudflared"
+  namespace        = "cloudflared"
+  create_namespace = true
+
+  set_sensitive {
+    name  = "cloudflared.auth.tunnelSecret"
+    value = base64encode(resource.random_password.argo-tunnel-secret.result)
+    type  = "string"
+  }
+
+  set_sensitive {
+    name  = "cloudflared.auth.accountTag"
+    value = var.cloudflare_account_id
+    type  = "string"
+  }
+
+  set {
+    name  = "cloudflared.auth.tunnelName"
+    value = "cluster.tristanxr.com"
+  }
+
+  set_sensitive {
+    name  = "cloudflared.tunnelID"
+    value = resource.cloudflare_argo_tunnel.argo-tunnel.id
+    type  = "string"
+  }
+
+  depends_on = [resource.cloudflare_argo_tunnel.argo-tunnel]
+}
+
+resource "helm_release" "bootstrap-networking-origin-ca-certs" {
+  name = "origin-ca-certs"
+
+  repository       = path.module
+  chart            = "bootstrap/networking/origin-ca-certs"
+  namespace        = "origin-ca-certs"
+  create_namespace = true
 }
 
 ###
@@ -152,10 +185,11 @@ resource "helm_release" "prometheus" {
 resource "helm_release" "keycloak" {
   name = "keycloak"
 
-  repository = "https://charts.bitnami.com/bitnami"
-  chart      = "keycloak"
-  version    = "9.6.9"
-  namespace  = "keycloak"
+  repository       = "https://charts.bitnami.com/bitnami"
+  chart            = "keycloak"
+  version          = "9.6.9"
+  namespace        = "keycloak"
+  create_namespace = true
 
   set {
     name  = "httpRelativePath"
@@ -229,8 +263,8 @@ resource "helm_release" "keycloak" {
   }
 
   depends_on = [
-    resource.lastpass_secret.keycloak-admin-password,
-    resource.kubernetes_namespace.keycloak
+    resource.helm_release.bootstrap-networking-cloudflared,
+    resource.lastpass_secret.keycloak-admin-password
   ]
 }
 
@@ -309,10 +343,11 @@ resource "keycloak_openid_client_default_scopes" "argo-cd" {
 resource "helm_release" "argo-cd" {
   name = "argo-cd"
 
-  repository = "https://argoproj.github.io/argo-helm"
-  chart      = "argo-cd"
-  version    = "4.10.7"
-  namespace  = "argo-cd"
+  repository       = "https://argoproj.github.io/argo-helm"
+  chart            = "argo-cd"
+  version          = "4.10.7"
+  namespace        = "argo-cd"
+  create_namespace = true
 
   values = [
     yamlencode({
@@ -320,21 +355,21 @@ resource "helm_release" "argo-cd" {
         config = {
           "oidc.tls.insecure.skip.verify" = "true"
           "oidc.config" = yamlencode({
-            name = "Keycloak"
-            issuer = "https://cluster.tristanxr.com/keycloak/realms/master"
-            clientID = "argo-cd"
-            clientSecret = "$oidc.keycloak.clientSecret"
+            name            = "Keycloak"
+            issuer          = "https://cluster.tristanxr.com/keycloak/realms/master"
+            clientID        = "argo-cd"
+            clientSecret    = "$oidc.keycloak.clientSecret"
             requestedScopes = ["openid", "profile", "email", "groups"]
           })
           "dex.config" = yamlencode({
             connectors = [{
               type = "oidc"
-              id = "keycloak"
+              id   = "keycloak"
               name = "Keycloak"
               config = {
-                issuer = "https://cluster.tristanxr.com/keycloak/realms/master"
-                clientID = "argo-cd"
-                clientSecret = "$oidc.keycloak.clientSecret"
+                issuer          = "https://cluster.tristanxr.com/keycloak/realms/master"
+                clientID        = "argo-cd"
+                clientSecret    = "$oidc.keycloak.clientSecret"
                 requestedScopes = ["openid", "profile", "email", "groups"]
               }
             }]
@@ -351,9 +386,9 @@ resource "helm_release" "argo-cd" {
   }
 
   set_sensitive {
-    name = "configs.secret.extra.oidc\\.keycloak\\.clientSecret"
+    name  = "configs.secret.extra.oidc\\.keycloak\\.clientSecret"
     value = resource.keycloak_openid_client.argo-cd.client_secret
-    type = "string"
+    type  = "string"
   }
 
   set {
@@ -483,7 +518,6 @@ resource "helm_release" "argo-cd" {
   }
 
   depends_on = [
-    resource.kubernetes_namespace.argo-cd,
     resource.helm_release.prometheus,
     resource.keycloak_openid_client.argo-cd
   ]
@@ -508,33 +542,5 @@ resource "helm_release" "argo-cd-internal" {
     type  = "string"
   }
 
-  set_sensitive {
-    name  = "networking.originKey"
-    value = var.cloudflare_origin_ca_key
-  }
-
-  set_sensitive {
-    name  = "networking.cloudflared.auth.tunnelSecret"
-    value = base64encode(resource.random_password.argo-tunnel-secret.result)
-    type  = "string"
-  }
-
-  set_sensitive {
-    name  = "networking.cloudflared.auth.accountTag"
-    value = var.cloudflare_account_id
-    type  = "string"
-  }
-
-  set {
-    name  = "networking.cloudflared.auth.tunnelName"
-    value = "cluster.tristanxr.com"
-  }
-
-  set_sensitive {
-    name  = "networking.cloudflared.tunnelID"
-    value = resource.cloudflare_argo_tunnel.argo-tunnel.id
-    type  = "string"
-  }
-
-  depends_on = [resource.helm_release.argo-cd, resource.cloudflare_argo_tunnel.argo-tunnel]
+  depends_on = [resource.helm_release.argo-cd]
 }
