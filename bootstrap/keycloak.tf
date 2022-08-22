@@ -28,16 +28,6 @@ resource "helm_release" "keycloak" {
     value = "/keycloak/"
   }
 
-  set_sensitive {
-    name  = "auth.tls.keystorePassword"
-    value = resource.random_password.keycloak-tls-key-password.result
-  }
-
-  set_sensitive {
-    name  = "auth.tls.truststorePassword"
-    value = resource.random_password.keycloak-tls-trust-password.result
-  }
-
   set {
     name  = "auth.adminUser"
     value = "admin"

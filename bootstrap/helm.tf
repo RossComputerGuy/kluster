@@ -12,16 +12,18 @@ resource "helm_release" "bootstrap-networking-cert-manager" {
   name = "cert-manager"
 
   repository       = path.module
-  chart            = "bootstrap/networking/cert-manager"
+  chart            = "networking/cert-manager"
   namespace        = "cert-manager"
   create_namespace = true
+
+  depends_on = [resource.helm_release.prometheus]
 }
 
 resource "helm_release" "bootstrap-networking-cloudflared" {
   name = "cloudflared"
 
   repository       = path.module
-  chart            = "bootstrap/networking/cloudflared"
+  chart            = "networking/cloudflared"
   namespace        = "cloudflared"
   create_namespace = true
 
@@ -55,7 +57,7 @@ resource "helm_release" "bootstrap-networking-origin-ca-certs" {
   name = "origin-ca-certs"
 
   repository       = path.module
-  chart            = "bootstrap/networking/origin-ca-certs"
+  chart            = "networking/origin-ca-certs"
   namespace        = "origin-ca-certs"
   create_namespace = true
 }

@@ -39,6 +39,10 @@ provider "kubernetes" {
 
 module "bootstrap" {
   source = "./bootstrap"
+
+  cloudflare_account_id    = var.cloudflare_account_id
+  cloudflare_token         = var.cloudflare_token
+  cloudflare_origin_ca_key = var.cloudflare_origin_ca_key
 }
 
 ##
@@ -107,7 +111,7 @@ resource "helm_release" "argo-cd" {
 
   set_sensitive {
     name  = "configs.secret.extra.oidc\\.keycloak\\.clientSecret"
-    value = resource.keycloak_openid_client.argo-cd.client_secret
+    value = module.bootstrap.argo-cd-keycloak-client-secret
     type  = "string"
   }
 
@@ -236,11 +240,6 @@ resource "helm_release" "argo-cd" {
     name  = "notifications.metrics.enabled"
     value = "true"
   }
-
-  depends_on = [
-    resource.helm_release.prometheus,
-    resource.keycloak_openid_client.argo-cd
-  ]
 }
 
 resource "helm_release" "argo-cd-internal" {
