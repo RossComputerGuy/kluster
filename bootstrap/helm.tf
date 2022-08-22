@@ -8,22 +8,22 @@ resource "helm_release" "prometheus" {
   create_namespace = true
 }
 
-resource "helm_release" "bootstrap-networking-cert-manager" {
+resource "helm_release" "cert-manager" {
   name = "cert-manager"
 
-  repository       = path.module
-  chart            = "networking/cert-manager"
+  repository       = path.root
+  chart            = "bootstrap/networking/cert-manager"
   namespace        = "cert-manager"
   create_namespace = true
 
   depends_on = [resource.helm_release.prometheus]
 }
 
-resource "helm_release" "bootstrap-networking-cloudflared" {
+resource "helm_release" "cloudflared" {
   name = "cloudflared"
 
-  repository       = path.module
-  chart            = "networking/cloudflared"
+  repository       = path.root
+  chart            = "bootstrap/networking/cloudflared"
   namespace        = "cloudflared"
   create_namespace = true
 
@@ -53,11 +53,13 @@ resource "helm_release" "bootstrap-networking-cloudflared" {
   depends_on = [resource.cloudflare_argo_tunnel.argo-tunnel]
 }
 
-resource "helm_release" "bootstrap-networking-origin-ca-certs" {
+resource "helm_release" "origin-ca-issuer" {
   name = "origin-ca-certs"
 
-  repository       = path.module
-  chart            = "networking/origin-ca-certs"
-  namespace        = "origin-ca-certs"
+  repository       = path.root
+  chart            = "bootstrap/networking/origin-ca-issuer"
+  namespace        = "origin-ca-issuer"
   create_namespace = true
+
+  depends_on = [resource.helm_release.cert-manager]
 }

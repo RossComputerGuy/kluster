@@ -72,7 +72,7 @@ resource "helm_release" "keycloak" {
   }
 
   depends_on = [
-    resource.helm_release.bootstrap-networking-cloudflared
+    resource.helm_release.cloudflared
   ]
 }
 
