@@ -37,12 +37,17 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
+module "lastpass" {
+  source = "./lastpass"
+}
+
 module "bootstrap" {
   source = "./bootstrap"
 
   cloudflare_account_id    = var.cloudflare_account_id
   cloudflare_token         = var.cloudflare_token
   cloudflare_origin_ca_key = var.cloudflare_origin_ca_key
+  keycloak_admin_password  = module.lastpass.keycloak-admin-password
 }
 
 ##

@@ -18,3 +18,10 @@ variable "cloudflare_origin_ca_key" {
   sensitive   = true
   nullable    = false
 }
+
+variable "keycloak_admin_password" {
+  type        = string
+  description = "The admin password to set for Keycloak"
+  sensitive   = true
+  nullable    = false
+}

@@ -1,16 +1,3 @@
-resource "random_password" "keycloak-admin-password" {
-  length           = 16
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
-}
-
-resource "lastpass_secret" "keycloak-admin-password" {
-  name     = "Kubernetes Cluster: Keycloak Admin Password"
-  url      = "https://cluster.tristanxr.com/keycloak"
-  username = "admin"
-  password = resource.random_password.keycloak-admin-password.result
-}
-
 ###
 ### Keycloak setup
 ###
@@ -35,7 +22,7 @@ resource "helm_release" "keycloak" {
 
   set_sensitive {
     name  = "auth.adminPassword"
-    value = resource.lastpass_secret.keycloak-admin-password.password
+    value = var.keycloak_admin_password
     type  = "string"
   }
 
@@ -76,24 +63,23 @@ resource "helm_release" "keycloak" {
 
   set_sensitive {
     name  = "postgresql.auth.postgresPassword"
-    value = resource.lastpass_secret.keycloak-admin-password.password
+    value = var.keycloak_admin_password
   }
 
   set_sensitive {
     name  = "postgresql.auth.password"
-    value = resource.lastpass_secret.keycloak-admin-password.password
+    value = var.keycloak_admin_password
   }
 
   depends_on = [
-    resource.helm_release.bootstrap-networking-cloudflared,
-    resource.lastpass_secret.keycloak-admin-password
+    resource.helm_release.bootstrap-networking-cloudflared
   ]
 }
 
 provider "keycloak" {
   client_id     = "admin-cli"
   username      = "admin"
-  password      = resource.lastpass_secret.keycloak-admin-password.password
+  password      = var.keycloak_admin_password
   url           = "https://cluster.tristanxr.com"
   base_path     = "/keycloak"
   initial_login = false
