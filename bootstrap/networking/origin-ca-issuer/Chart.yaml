@@ -4,7 +4,3 @@ description: Cloudflare's OriginCA for Cert Manager
 type: application
 version: 0.5.0
 appVersion: "1.0"
-dependencies:
-  - name: origin-ca-issuer
-    version: 1.9.1
-    repository: https://github.com/cloudflare/origin-ca-issuer/raw/trunk/deploy/charts/
