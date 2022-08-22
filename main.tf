@@ -303,20 +303,6 @@ resource "keycloak_openid_client_default_scopes" "argo-cd" {
   ]
 }
 
-data "kubernetes_service_account" "keycloak" {
-  metadata {
-    name = "keycloak"
-    namespace = "keycloak"
-  }
-}
-
-data "kubernetes_secret" "keycloak-token" {
-  metadata {
-    name = "${data.kubernetes_service_account.keycloak.default_secret_name}"
-    namespace = "keycloak"
-  }
-}
-
 ##
 ## ArgoCD
 ##
@@ -332,13 +318,13 @@ resource "helm_release" "argo-cd" {
     yamlencode({
       server = {
         config = {
+          "oidc.tls.insecure.skip.verify" = "true"
           "oidc.config" = yamlencode({
             name = "Keycloak"
             issuer = "https://cluster.tristanxr.com/keycloak/realms/master"
             clientID = "argo-cd"
             clientSecret = "$oidc.keycloak.clientSecret"
             requestedScopes = ["openid", "profile", "email", "groups"]
-            rootCA = data.kubernetes_secret.keycloak-token.data["ca.crt"]
           })
           "dex.config" = yamlencode({
             connectors = [{
@@ -350,7 +336,6 @@ resource "helm_release" "argo-cd" {
                 clientID = "argo-cd"
                 clientSecret = "$oidc.keycloak.clientSecret"
                 requestedScopes = ["openid", "profile", "email", "groups"]
-                rootCA = data.kubernetes_secret.keycloak-token.data["ca.crt"]
               }
             }]
           })
@@ -358,12 +343,6 @@ resource "helm_release" "argo-cd" {
       }
     })
   ]
-
-  set_sensitive {
-    name  = "configs.tlsCerts.data.cluster\\.tristanxr\\.com"
-    value = data.kubernetes_secret.keycloak-token.data["ca.crt"]
-    type  = "string"
-  }
 
   set_sensitive {
     name  = "configs.secret.argocdServerAdminPassword"
