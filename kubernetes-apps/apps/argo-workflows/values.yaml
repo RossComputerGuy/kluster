@@ -1,15 +1,14 @@
 argo-workflows:
+  singleNamespace: true
   controller:
     telemetryConfig:
       enabled: true
     metricsConfig:
       enabled: true
   server:
+    baseHref: /argo-workflows
     extraArgs:
       - --auth-mode=sso
-    extraEnv:
-      - name: BASE_HREF
-        value: /argo-workflows
     ingress:
       enabled: true
       annotations:
@@ -21,6 +20,7 @@ argo-workflows:
     sso:
       issuer: "https://cluster.tristanxr.com/keycloak/realms/master"
       redirectUrl: "https://cluster.tristanxr.com/keycloak"
+      insecureSkipVerify: true
       scopes:
         - groups
         - email
