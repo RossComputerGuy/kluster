@@ -79,7 +79,7 @@ resource "helm_release" "argo-cd" {
 
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
-  version          = "4.10.7"
+  version          = "4.10.9"
   namespace        = "argo-cd"
   create_namespace = true
 
@@ -87,7 +87,7 @@ resource "helm_release" "argo-cd" {
     yamlencode({
       server = {
         rbacConfig = {
-          "policy.csv" = "g, argo-cd-admin, role:admin"
+          "policy.csv" = "g, /argo-cd-admin, role:admin"
         }
         config = {
           "oidc.tls.insecure.skip.verify" = "true"
@@ -97,20 +97,7 @@ resource "helm_release" "argo-cd" {
             clientID        = "argo-cd"
             clientSecret    = "$oidc.keycloak.clientSecret"
             requestedScopes = ["openid", "profile", "email", "groups"]
-          })
-          "dex.config" = yamlencode({
-            connectors = [{
-              type = "oidc"
-              id   = "keycloak"
-              name = "Keycloak"
-              config = {
-                issuer          = "https://cluster.tristanxr.com/keycloak/realms/master"
-                clientID        = "argo-cd"
-                clientSecret    = "$oidc.keycloak.clientSecret"
-                requestedScopes = ["openid", "profile", "email", "groups"]
-                redirectURI     = "https://cluster.tristanxr.com/keycloak"
-              }
-            }]
+            redirectURI     = "https://cluster.tristanxr.com/keycloak"
           })
         }
       }
