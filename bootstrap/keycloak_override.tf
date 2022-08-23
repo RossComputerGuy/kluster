@@ -1,3 +1,0 @@
-provider "keycloak" {
-  password = null
-}

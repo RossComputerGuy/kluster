@@ -86,6 +86,9 @@ resource "helm_release" "argo-cd" {
   values = [
     yamlencode({
       server = {
+        rbacConfig = {
+          "policy.csv" = "g, argo-cd-admin, role:admin"
+        }
         config = {
           "oidc.tls.insecure.skip.verify" = "true"
           "oidc.config" = yamlencode({
@@ -105,6 +108,7 @@ resource "helm_release" "argo-cd" {
                 clientID        = "argo-cd"
                 clientSecret    = "$oidc.keycloak.clientSecret"
                 requestedScopes = ["openid", "profile", "email", "groups"]
+                redirectURI     = "https://cluster.tristanxr.com/keycloak"
               }
             }]
           })

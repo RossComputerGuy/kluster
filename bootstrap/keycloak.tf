@@ -108,9 +108,7 @@ resource "keycloak_openid_client" "argo-cd" {
   ]
 
   web_origins = [
-    "https://cluster.tristanxr.com/argo-cd/",
-    "https://cluster.tristanxr.com/argo-cd/*",
-    "https://cluster.tristanxr.com/argo-cd/*/*"
+    "https://cluster.tristanxr.com",
   ]
 
   depends_on = [resource.helm_release.keycloak, data.keycloak_realm.master]
@@ -143,4 +141,9 @@ resource "keycloak_openid_client_default_scopes" "argo-cd" {
     "web-origins",
     resource.keycloak_openid_group_membership_protocol_mapper.groups.name
   ]
+}
+
+resource "keycloak_group" "argo-cd-admin" {
+  realm_id = data.keycloak_realm.master.id
+  name     = "argo-cd-admin"
 }
