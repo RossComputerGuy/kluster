@@ -1,0 +1,20 @@
+argo-workflows:
+  controller:
+    telemetryConfig:
+      enabled: true
+    metricsConfig:
+      enabled: true
+  server:
+    extraArgs:
+      - --auth-mode=sso
+    extraEnv:
+      - name: BASE_HREF
+        value: /argo-workflows
+    ingress:
+      enabled: true
+      annotations:
+        nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+        nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+        nginx.ingress.kubernetes.io/rewrite-target: "/argo-workflows/$2"
+      hosts: ["cluster.tristanxr.com"]
+      paths: ["/argo-workflows(/|$)(.*)"]

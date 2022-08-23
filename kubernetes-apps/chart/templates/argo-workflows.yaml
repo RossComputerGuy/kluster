@@ -1,0 +1,16 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-workflows
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: kubernetes-apps
+  source:
+    repoURL: {{ .Values.repoUrl }}
+    path: kubernetes-apps/apps/argo-rollouts
+    targetRevision: {{ .Values.targetRevision }}
+    helm:
+      values:
+        argo-workflows:
+        {{- toYaml .Values.argoWorkflows | nindent 10 }}

@@ -71,6 +71,12 @@ resource "lastpass_secret" "argo-cd-admin-password" {
   password = resource.random_password.argo-cd-admin-password.result
 }
 
+resource "random_password" "argo-workflows-sso-client-secret" {
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?"
+}
+
 ##
 ## ArgoCD
 ##
@@ -85,12 +91,26 @@ resource "helm_release" "argo-cd" {
 
   values = [
     yamlencode({
+      dex = {
+        extraEnv = [{
+          name  = "ARGO_WORKFLOWS_SSO_CLIENT_SECRET"
+          value = resource.random_password.argo-workflows-sso-client-secret.result
+        }]
+      }
       server = {
         rbacConfig = {
           "policy.csv" = "g, /argo-cd-admin, role:admin"
         }
         config = {
           "oidc.tls.insecure.skip.verify" = "true"
+          "dex.config" = yamlencode({
+            staticClients = [{
+              id = "argo-workflows-sso"
+              name = "Argo Workflows"
+              redirectURIs = ["https://cluster.tristanxr.com/argo-workflows/oauth2/callback"]
+              secretEnv = "ARGO_WORKFLOWS_SSO_CLIENT_SECRET"
+            }]
+          })
           "oidc.config" = yamlencode({
             name            = "Keycloak"
             issuer          = "https://cluster.tristanxr.com/keycloak/realms/master"
@@ -250,6 +270,28 @@ resource "helm_release" "argo-cd-internal" {
   chart      = "argo-cd-internal/chart"
   namespace  = "argo-cd"
 
+  values = [
+    yamlencode({
+      "argo-workflows" = {
+        ssoClientSecret = resource.random_password.argo-workflows-sso-client-secret.result
+        server = {
+          sso = {
+            issuer = "https://cluster.tristanxr.com/argo-cd/api/dex"
+            redirectUrl = "https://cluster.tristanxr.com/argo-workflows/oauth2/callback"
+            clientId = {
+              name = "argo-workflows-sso"
+              key  = "client-id"
+            }
+            clientSecret = {
+              name = "argo-workflows-sso"
+              key  = "client-secret"
+            }
+          }
+        }
+      }
+    })
+  ]
+
   set {
     name  = "repoURL"
     value = local.repoURL
@@ -260,6 +302,9 @@ resource "helm_release" "argo-cd-internal" {
     name  = "targetRevision"
     value = local.targetRevision
     type  = "string"
+  }
+
+  set {
   }
 
   depends_on = [resource.helm_release.argo-cd]
