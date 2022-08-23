@@ -11,7 +11,7 @@ spec:
     server: https://kubernetes.default.svc
   source:
     repoURL: {{ .Values.repoURL }}
-    path: kubernetes-apps/apps/argo-rollouts
+    path: kubernetes-apps/apps/argo-workflows
     targetRevision: {{ .Values.targetRevision }}
     helm:
       values: |
