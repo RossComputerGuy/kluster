@@ -21,3 +21,6 @@ spec:
       values: |
         argo-workflows:
         {{- toYaml .Values.argoWorkflows | nindent 10 }}
+
+        argoWorkflows:
+        {{- toYaml .Values.argoWorkflows | nindent 10 }}
