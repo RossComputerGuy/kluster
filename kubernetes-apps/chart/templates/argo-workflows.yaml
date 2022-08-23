@@ -7,7 +7,7 @@ metadata:
 spec:
   project: kubernetes-apps
   source:
-    repoURL: {{ .Values.repoUrl }}
+    repoURL: {{ .Values.repoURL }}
     path: kubernetes-apps/apps/argo-rollouts
     targetRevision: {{ .Values.targetRevision }}
     helm:
