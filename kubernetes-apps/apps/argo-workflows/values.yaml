@@ -9,6 +9,8 @@ argo-workflows:
     baseHref: /argo-workflows
     extraArgs:
       - --auth-mode=sso
+    serviceAccount:
+      create: false
     ingress:
       enabled: true
       annotations:
