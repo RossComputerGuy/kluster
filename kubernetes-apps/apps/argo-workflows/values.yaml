@@ -6,7 +6,7 @@ argo-workflows:
       enabled: true
   server:
     secure: true
-    baseHref: /argo-workflows
+    baseHref: /argo-workflows/
     extraArgs:
       - --auth-mode=sso
     ingress:
