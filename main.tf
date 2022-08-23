@@ -37,6 +37,11 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
+provider "cloudflare" {
+  api_token            = var.cloudflare_token
+  api_user_service_key = var.cloudflare_origin_ca_key
+}
+
 module "lastpass" {
   source = "./lastpass"
 }
