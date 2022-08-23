@@ -5,6 +5,7 @@ argo-workflows:
     metricsConfig:
       enabled: true
   server:
+    secure: true
     baseHref: /argo-workflows
     extraArgs:
       - --auth-mode=sso
