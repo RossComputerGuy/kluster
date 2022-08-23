@@ -6,6 +6,10 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: kubernetes-apps
+  syncPolicy:
+    automated: {}
+    syncOptions:
+      - CreateNamespace=true
   destination:
     namespace: argo-workflows
     server: https://kubernetes.default.svc
