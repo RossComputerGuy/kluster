@@ -6,6 +6,9 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: kubernetes-apps
+  destination:
+    namespace: argo-workflows
+    server: https://kubernetes.default.svc
   source:
     repoURL: {{ .Values.repoURL }}
     path: kubernetes-apps/apps/argo-rollouts
