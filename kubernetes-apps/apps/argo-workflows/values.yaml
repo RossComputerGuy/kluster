@@ -18,3 +18,13 @@ argo-workflows:
         nginx.ingress.kubernetes.io/rewrite-target: "/argo-workflows/$2"
       hosts: ["cluster.tristanxr.com"]
       paths: ["/argo-workflows(/|$)(.*)"]
+    sso:
+      issuer: "https://cluster.tristanxr.com/argo-cd/api/dex"
+      redirectUrl: "https://cluster.tristanxr.com/argo-workflows/oauth2/callback"
+      clientId:
+        name: "argo-workflows-sso"
+        key: "client-id"
+      clientSecret:
+        name: "argo-workflows-sso"
+        key: "client-secret"
+

@@ -274,20 +274,6 @@ resource "helm_release" "argo-cd-internal" {
     yamlencode({
       "argo-workflows" = {
         ssoClientSecret = resource.random_password.argo-workflows-sso-client-secret.result
-        server = {
-          sso = {
-            issuer = "https://cluster.tristanxr.com/argo-cd/api/dex"
-            redirectUrl = "https://cluster.tristanxr.com/argo-workflows/oauth2/callback"
-            clientId = {
-              name = "argo-workflows-sso"
-              key  = "client-id"
-            }
-            clientSecret = {
-              name = "argo-workflows-sso"
-              key  = "client-secret"
-            }
-          }
-        }
       }
     })
   ]
@@ -302,9 +288,6 @@ resource "helm_release" "argo-cd-internal" {
     name  = "targetRevision"
     value = local.targetRevision
     type  = "string"
-  }
-
-  set {
   }
 
   depends_on = [resource.helm_release.argo-cd]
