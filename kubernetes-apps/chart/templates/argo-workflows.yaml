@@ -14,6 +14,6 @@ spec:
     path: kubernetes-apps/apps/argo-rollouts
     targetRevision: {{ .Values.targetRevision }}
     helm:
-      values:
+      values: |
         argo-workflows:
         {{- toYaml .Values.argoWorkflows | nindent 10 }}
