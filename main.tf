@@ -262,5 +262,10 @@ resource "helm_release" "argo-cd-internal" {
     type  = "string"
   }
 
+  set {
+    name = "apps.argoWorkflows.clientSecret"
+    value = module.bootstrap.argo-workflows-keycloak-client-secret
+  }
+
   depends_on = [resource.helm_release.argo-cd]
 }

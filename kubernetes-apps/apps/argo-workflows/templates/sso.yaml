@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: argo-workflows-sso
+stringData:
+  client-id: argo-workflows
+  client-secret: {{ .Values.argoWorkflows.clientSecret }}
